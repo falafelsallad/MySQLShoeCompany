@@ -156,4 +156,23 @@ public class Repository {
         }
         return colour.toString();
     }
+
+    public void getShoeInfo(int shoeIDInput){
+        try (Connection con = DriverManager.getConnection(
+                p.getProperty("url"),
+                p.getProperty("user"),
+                p.getProperty("password"));
+             CallableStatement callgetShoeInfo = con.prepareCall("CALL AddToCart(?)");){
+            callgetShoeInfo.setInt(1, shoeIDInput);
+            callgetShoeInfo.executeQuery();
+
+
+
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
 }
