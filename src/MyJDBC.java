@@ -11,7 +11,7 @@ public class MyJDBC {
             );
             Statement statement = connection.createStatement();
             Scanner scan = new Scanner(System.in);
-
+            // hej
             System.out.println("Enter username:");
             String username = scan.next();
 
