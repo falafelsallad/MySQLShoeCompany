@@ -198,7 +198,7 @@ public class Repository {
 
             // Execute the stored procedure
          //callgetShoesByCategory.executeQuery();
-
+// HEJHEJ
             // Process the result set
 
                 try (ResultSet rs = callgetShoesByCategory.getResultSet()) {
