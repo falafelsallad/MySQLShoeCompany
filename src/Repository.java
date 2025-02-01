@@ -162,11 +162,18 @@ public class Repository {
                 p.getProperty("url"),
                 p.getProperty("user"),
                 p.getProperty("password"));
-             CallableStatement callgetShoeInfo = con.prepareCall("CALL AddToCart(?)");){
+             CallableStatement callgetShoeInfo = con.prepareCall("CALL GetShoeDetails(?)");){
             callgetShoeInfo.setInt(1, shoeIDInput);
+
+
+            callgetShoeInfo.getString("Name");
+            callgetShoeInfo.getString("Brand");
+            callgetShoeInfo.getString("Colour");
+            callgetShoeInfo.getString("Category");
+            callgetShoeInfo.getInt("Size");
+            callgetShoeInfo.getInt("Price");
+            callgetShoeInfo.getInt("storageBalance");
             callgetShoeInfo.executeQuery();
-
-
 
 
         } catch (SQLException e) {
@@ -174,5 +181,50 @@ public class Repository {
         }
 
     }
+    public void getShoeDetailsByCategory() {
+        // Prompt the user for a category ID
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter category ID: ");
+        int categoryIDInput = scanner.nextInt();
+
+        try (Connection con = DriverManager.getConnection(
+                p.getProperty("url"),
+                p.getProperty("user"),
+                p.getProperty("password"));
+             CallableStatement callgetShoesByCategory = con.prepareCall("CALL GetShoesByCategory(?)")) {
+
+            // Set input parameter
+            callgetShoesByCategory.setInt(1, categoryIDInput);
+
+            // Execute the stored procedure
+         //callgetShoesByCategory.executeQuery();
+
+            // Process the result set
+
+                try (ResultSet rs = callgetShoesByCategory.getResultSet()) {
+                    while (rs.next()) {
+                        int price = rs.getInt("price");
+                        int size = rs.getInt("size");
+                        int balance = rs.getInt("Storage_balance");
+                        String brand = rs.getString("brand");
+                        String colours = rs.getString("colour");
+                        String categories = rs.getString("categories");
+
+                        System.out.println("Price: " + price);
+                        System.out.println("Size: " + size);
+                        System.out.println("Balance: " + balance);
+                        System.out.println("Brand: " + brand);
+                        System.out.println("Colours: " + colours);
+                        System.out.println("Categories: " + categories);
+                        System.out.println("-----------------------------");
+                    }
+                }
+
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error retrieving shoes by category", e);
+        }
+    }
+
 
 }
