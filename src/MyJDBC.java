@@ -49,7 +49,7 @@ public class MyJDBC {
             }
 
 
-
+// hej
             //4, 1, 1, 1
             CallableStatement callAddToCart = connection.prepareCall("{call AddToCart(?, ?, ?, ?)}");
             callAddToCart.setInt(1, customerID);
