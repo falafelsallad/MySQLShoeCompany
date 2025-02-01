@@ -8,6 +8,6 @@ public class ShoeStore {
 
     public static void main(String[] args) {
         Repository r= new Repository();
-        r.getShoeDetailsByCategory();
+        r.getShoeInfo(2);
     }
 }

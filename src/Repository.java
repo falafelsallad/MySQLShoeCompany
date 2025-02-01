@@ -164,18 +164,16 @@ public class Repository {
                 p.getProperty("password"));
              CallableStatement callgetShoeInfo = con.prepareCall("CALL GetShoeDetails(?)");){
             callgetShoeInfo.setInt(1, shoeIDInput);
+           ResultSet rs= callgetShoeInfo.executeQuery();
 
-
-            callgetShoeInfo.getString("Name");
-            callgetShoeInfo.getString("Brand");
-            callgetShoeInfo.getString("Colour");
-            callgetShoeInfo.getString("Category");
-            callgetShoeInfo.getInt("Size");
-            callgetShoeInfo.getInt("Price");
-            callgetShoeInfo.getInt("storageBalance");
-            callgetShoeInfo.executeQuery();
-
-
+            while (rs.next()) {
+                System.out.println("Price" + rs.getInt("Price"));
+                System.out.println("Size" + rs.getInt("Size"));
+                System.out.println("storage" + rs.getInt("balance"));
+                System.out.println("brand " + rs.getString("Brand"));
+                System.out.println("colour" + rs.getString("Colour"));
+                System.out.println("Category" + rs.getString("Category"));
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -197,8 +195,7 @@ public class Repository {
             callgetShoesByCategory.setInt(1, categoryIDInput);
 
             // Execute the stored procedure
-         //callgetShoesByCategory.executeQuery();
-// HEJHEJ
+            //callgetShoesByCategory.executeQuery();
             // Process the result set
 
                 try (ResultSet rs = callgetShoesByCategory.getResultSet()) {
