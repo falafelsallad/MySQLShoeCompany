@@ -129,6 +129,7 @@ public class Repository {
                 while (rs.next()) {
                     System.out.println(rs.getString("Name"));
                     categorie.setCategorie(rs.getString("Name"));
+                    //kanske bara souta istället för att spara i en List<>
                     listCategories.add(rs.getString("Name"));
                 }
             } catch (SQLException e) {
