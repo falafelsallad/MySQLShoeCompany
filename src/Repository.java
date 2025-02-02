@@ -121,7 +121,6 @@ public class Repository {
             callAddToCart.setInt(3, shoeAmount); // Quantity
             callAddToCart.executeQuery();
             Statement statement = con.createStatement();
-            ResultSet rs = statement.executeQuery("SELECT NAME FROM category WHERE ID = " + shoeIDInput);
             ResultSet resultSet = callAddToCart.executeQuery("SELECT * FROM orderitem WHERE orderID = " + orderID);
 
             while (resultSet.next()) { // TODO Shoes should have a name
@@ -146,6 +145,7 @@ public class Repository {
                 while (rs.next()) {
                     System.out.println(rs.getString("Name"));
                 }
+                System.out.println("-----------------------------");
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -161,6 +161,7 @@ public class Repository {
             while (rs.next()) {
                 System.out.println(rs.getString("Name"));
             }
+            System.out.println("-----------------------------");
         } catch (SQLException e) {
             e.printStackTrace();
         }
