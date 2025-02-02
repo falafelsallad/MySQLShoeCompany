@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 public class Repository {
     shoes shoe=new shoes();
-    Categories categorie=new Categories();
+    Categories category=new Categories();
     Colours colour=new Colours();
     List <String> listColour= new ArrayList<>();
     List <String> listCategories=new ArrayList<>();
@@ -20,7 +20,7 @@ public class Repository {
 
     public Repository() {
         try {
-            p.load(new FileInputStream("C:\\Users\\Ägaren\\Documents\\GitHub\\MySQLShoeCompany\\src\\settings.properties"));
+            p.load(new FileInputStream("C:\\Users\\fatim\\Documents\\GitHub\\MySQLShoeCompany\\src\\settings.properties"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -29,11 +29,10 @@ public class Repository {
     //INLOGGNING FÖR ANVÄNDARE
     public int startLogIn() {
         int customerIDFromLogIn;
-        try (Connection con = DriverManager.getConnection(p.getProperty("url"),
-                p.getProperty("user"),
-                p.getProperty("password"));
-             CallableStatement callLogin = con.prepareCall("CALL CustomerLogin (?,?,?)");) {
-            Scanner scan = new Scanner(System.in);
+        Scanner scan = new Scanner(System.in);
+
+        try (Connection con = getConnection();
+            CallableStatement callLogin = con.prepareCall("CALL CustomerLogin (?,?,?)")) {
 
             System.out.println("Enter username:");
             String username = scan.next();
@@ -48,7 +47,7 @@ public class Repository {
             callLogin.executeQuery();
             customerIDFromLogIn = callLogin.getInt(3);
 
-            if (callLogin.getInt(3) > 0) {
+            if (customerIDFromLogIn > 0) {
                 System.out.println("Login successful, customer " + customerIDFromLogIn);
                 ResultSet resultSet = callLogin.executeQuery("SELECT customer.firstname, customer.lastname FROM customer WHERE ID = " + customerIDFromLogIn);
                 while (resultSet.next()) {
@@ -67,40 +66,53 @@ public class Repository {
 
     // KONTROLL OM DE ÄR AKTIVA ELLER BETALDA
     public int getPaymentStatus(int customersIDfromLogin) {
-        try (Connection con = DriverManager.getConnection(p.getProperty("url"),
-                p.getProperty("user"),
-                p.getProperty("password"));
-             CallableStatement callPaymentStatus = con.prepareCall("CALL CheckPaymentStatus(?,?)");) {
+        int orderID = 0;
+        try (Connection con = getConnection();
+            CallableStatement callPaymentStatus = con.prepareCall("CALL CheckPaymentStatus(?,?)")) {
             callPaymentStatus.setInt(1, customersIDfromLogin);
             callPaymentStatus.registerOutParameter(2, Types.INTEGER);
 
             callPaymentStatus.executeQuery();
-            customersIDfromLogin = callPaymentStatus.getInt(2);
+            orderID = callPaymentStatus.getInt(2);
 
-            if (customersIDfromLogin == 0) {
+            if (orderID == 0) {
                 System.out.println("No active order, time to make a new one!");
+                orderID= createOrder(customersIDfromLogin);
             } else {
-                System.out.println("Active Order ID: " + customersIDfromLogin);
+                System.out.println("Active Order ID: " + orderID);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return customersIDfromLogin;
+        return orderID;
+    }
+
+    public int createOrder(int customerID){
+        int orderID = 0;
+        try (Connection con = getConnection();
+            CallableStatement callCreateOrder = con.prepareCall("CALL CreateOrder(?,?)")){
+            callCreateOrder.setInt(1, customerID);
+            callCreateOrder.registerOutParameter(2, Types.INTEGER);
+            callCreateOrder.executeQuery();
+
+            orderID = callCreateOrder.getInt(2);
+            System.out.println("NEW ORDER CREATED, Order ID: " + orderID);
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return orderID;
     }
 
 
-  // ADD TO CART
-    public void AddToCart(int customerID, int orderID, int shoeID, int amountInOrder) {
-        try (Connection con = DriverManager.getConnection(p.getProperty("url"),
-                p.getProperty("user"),
-                p.getProperty("password"));
-             CallableStatement callAddToCart = con.prepareCall("CALL AddToCart(?,?,?,?)");) {
+    // ADD TO CART
+    public void AddToCart(int orderID, int shoeID, int amountInOrder) {
+        try (Connection con = getConnection();
+             CallableStatement callAddToCart = con.prepareCall("CALL AddToCart(?,?,?)");) {
 
-            // CallableStatement callAddToCart = connection.prepareCall("{call AddToCart(?, ?, ?, ?)}");
-            callAddToCart.setInt(1, customerID); //customerID
-            callAddToCart.setInt(2, orderID); // orderID
-            callAddToCart.setInt(3, 1); // ShoeID
-            callAddToCart.setInt(4, 1); // Quantity
+            callAddToCart.setInt(1, orderID); // orderID
+            callAddToCart.setInt(2, 1); // ShoeID
+            callAddToCart.setInt(3, 1); // Quantity
             callAddToCart.executeQuery();
 
             ResultSet resultSet = callAddToCart.executeQuery("SELECT * FROM orderitem WHERE orderID = " + orderID);
@@ -118,39 +130,28 @@ public class Repository {
     }
 
     // KATEGORIER IN I LIST
-    public String getCategories(){
-            try (Connection con = DriverManager.getConnection(
-                    p.getProperty("url"),
-                    p.getProperty("user"),
-                    p.getProperty("password"));
+    public String getCategories(){                                                      //FUNKAR UTMÄRKT UTAN EN LISTA!
+            try (Connection con = getConnection();
                  Statement statement = con.createStatement();
                  ResultSet rs = statement.executeQuery("SELECT NAME FROM category")) {
 
                 while (rs.next()) {
                     System.out.println(rs.getString("Name"));
-                    categorie.setCategorie(rs.getString("Name"));
-                    //kanske bara souta istället för att spara i en List<>
-                    listCategories.add(rs.getString("Name"));
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            return categorie.toString();
+            return category.toString();
     }
 
     //FÄRGER IN I LIST
-    public String getcolours(){
-        try (Connection con = DriverManager.getConnection(
-                p.getProperty("url"),
-                p.getProperty("user"),
-                p.getProperty("password"));
+    public String getColours(){                                                         //FUNKAR UTMÄRKT UTAN EN LISTA HÄR OCKSÅ!
+        try (Connection con = getConnection();
              Statement statement = con.createStatement();
              ResultSet rs = statement.executeQuery("SELECT NAME FROM colour")) {
 
             while (rs.next()) {
                 System.out.println(rs.getString("Name"));
-                colour.setColours(rs.getString("Name"));
-                listColour.add(rs.getString("Name"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -159,21 +160,18 @@ public class Repository {
     }
 
     public void getShoeInfo(int shoeIDInput){
-        try (Connection con = DriverManager.getConnection(
-                p.getProperty("url"),
-                p.getProperty("user"),
-                p.getProperty("password"));
-             CallableStatement callgetShoeInfo = con.prepareCall("CALL GetShoeDetails(?)");){
+        try (Connection con = getConnection();
+            CallableStatement callgetShoeInfo = con.prepareCall("CALL GetShoeDetails(?)")){
             callgetShoeInfo.setInt(1, shoeIDInput);
-           ResultSet rs= callgetShoeInfo.executeQuery();
+            ResultSet rs= callgetShoeInfo.executeQuery();
 
             while (rs.next()) {
-                System.out.println("Price" + rs.getInt("Price"));
-                System.out.println("Size" + rs.getInt("Size"));
-                System.out.println("storage" + rs.getInt("balance"));
+                System.out.println("Price " + rs.getInt("Price"));
+                System.out.println("Size " + rs.getInt("Size"));
+                System.out.println("storage " + rs.getInt("Balance"));
                 System.out.println("brand " + rs.getString("Brand"));
-                System.out.println("colour" + rs.getString("Colour"));
-                System.out.println("Category" + rs.getString("Category"));
+                System.out.println("colour " + rs.getString("Colour"));
+                System.out.println("Category " + rs.getString("Category"));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -222,6 +220,10 @@ public class Repository {
         } catch (SQLException e) {
             throw new RuntimeException("Error retrieving shoes by category", e);
         }
+    }
+
+    private Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(p.getProperty("url"), p.getProperty("user"), p.getProperty("password"));
     }
 
 

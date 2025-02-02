@@ -1,16 +1,16 @@
 public class Categories {
-    private String categorie;
+    private String category;
 
-    public String getCategorie() {
-        return categorie;
+    public String getCategory() {
+        return category;
     }
 
-    public void setCategorie(String categorie) {
-        this.categorie = categorie;
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     @Override
     public String toString() {
-        return "Categorie" + categorie + " ";
+        return "Category" + category + " ";
     }
 }
