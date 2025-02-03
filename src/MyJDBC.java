@@ -15,10 +15,10 @@ public class MyJDBC {
             int customerID = repository.startLogIn();
             int orderID = repository.getPaymentStatus(customerID);
             repository.getCategories(); // TODO: FIXA SÅ ATT MAN KAN VÄLJA KATEGORI
-            repository.getColours();
+            //repository.getColours();
+            repository.getShoeDetailsByCategory();
             repository.AddToCart(orderID);
 
-           repository.getShoeInfo(2);
 
         } catch (SQLException e) {
             e.printStackTrace();

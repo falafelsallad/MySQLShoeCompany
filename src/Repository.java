@@ -128,7 +128,7 @@ public class Repository {
                 System.out.println("Shoe: " + resultSet.getInt("shoeID"));
                 System.out.println("Quantity: " + resultSet.getInt("amount"));
                 System.out.println("Total price: " + resultSet.getInt("price"));
-                System.out.println("-----------------------------");
+                System.out.println("-----------------------------" + "\n");
             }
 
         } catch (SQLException e) {
@@ -137,19 +137,17 @@ public class Repository {
     }
 
     // KATEGORIER IN I LIST
-    public String getCategories(){                                                      //FUNKAR UTMÄRKT UTAN EN LISTA!
+    public void getCategories(){    //FUNKAR UTMÄRKT UTAN EN LISTA!
             try (Connection con = getConnection();
                  Statement statement = con.createStatement();
-                 ResultSet rs = statement.executeQuery("SELECT NAME FROM category")) {
-
+                 ResultSet rs = statement.executeQuery("SELECT ID as numb, NAME FROM category")) {
                 while (rs.next()) {
                     System.out.println(rs.getString("Name"));
                 }
-                System.out.println("-----------------------------");
+                System.out.println("-----------------------------" +"\n");
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            return category.toString();
     }
 
     //FÄRGER IN I LIST
@@ -182,6 +180,7 @@ public class Repository {
                 System.out.println("Brand: " + rs.getString("Brand"));
                 System.out.println("Colour: " + rs.getString("Colour"));
                 System.out.println("Category: " + rs.getString("Category"));
+                System.out.println("--------------------------" +"\n");
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -203,9 +202,8 @@ public class Repository {
             // Set input parameter
             callgetShoesByCategory.setInt(1, categoryIDInput);
 
-            // Execute the stored procedure
-            //callgetShoesByCategory.executeQuery();
-            // Process the result set
+            // Starting SP
+            callgetShoesByCategory.executeQuery();
 
                 try (ResultSet rs = callgetShoesByCategory.getResultSet()) {
                     while (rs.next()) {
@@ -224,7 +222,7 @@ public class Repository {
                         System.out.println("Brand: " + brand);
                         System.out.println("Colours: " + colours);
                         System.out.println("Categories: " + categories);
-                        System.out.println("-----------------------------");
+                        System.out.println("-----------------------------" + "\n");
                     }
                 }
 
