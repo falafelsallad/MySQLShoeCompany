@@ -18,6 +18,13 @@ public class MyJDBC {
             //repository.getColours();
             repository.getShoeDetailsByCategory();
             repository.AddToCart(orderID);
+            System.out.println("Är du klar med ditt köp?? Y/N");
+            String svar= scan.next();
+            if (svar.equalsIgnoreCase("Y")){
+                repository.confirmPurchase(orderID);
+                System.out.println("Din betalning är klar");
+            }
+
 
 
         } catch (SQLException e) {

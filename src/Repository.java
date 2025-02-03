@@ -8,12 +8,14 @@ import java.util.Properties;
 import java.sql.*;
 import java.util.Scanner;
 
+import static java.sql.DriverManager.getConnection;
+
 public class Repository {
-    shoes shoe=new shoes();
-    Categories category=new Categories();
-    Colours colour=new Colours();
-    List <String> listColour= new ArrayList<>();
-    List <String> listCategories=new ArrayList<>();
+    shoes shoe = new shoes();
+    Categories category = new Categories();
+    Colours colour = new Colours();
+    List<String> listColour = new ArrayList<>();
+    List<String> listCategories = new ArrayList<>();
     Colours coloursFromDataBase;
     Categories categoriesFromDataBase;
     private Properties p = new Properties();
@@ -32,7 +34,7 @@ public class Repository {
         Scanner scan = new Scanner(System.in);
 
         try (Connection con = getConnection();
-            CallableStatement callLogin = con.prepareCall("CALL CustomerLogin (?,?,?)")) {
+             CallableStatement callLogin = con.prepareCall("CALL CustomerLogin (?,?,?)")) {
 
             System.out.println("Enter username:");
             String username = scan.next();
@@ -68,7 +70,7 @@ public class Repository {
     public int getPaymentStatus(int customersIDfromLogin) {
         int orderID = 0;
         try (Connection con = getConnection();
-            CallableStatement callPaymentStatus = con.prepareCall("CALL CheckPaymentStatus(?,?)")) {
+             CallableStatement callPaymentStatus = con.prepareCall("CALL CheckPaymentStatus(?,?)")) {
             callPaymentStatus.setInt(1, customersIDfromLogin);
             callPaymentStatus.registerOutParameter(2, Types.INTEGER);
 
@@ -77,7 +79,7 @@ public class Repository {
 
             if (orderID == 0) {
                 System.out.println("No active order, time to make a new one!");
-                orderID= createOrder(customersIDfromLogin);
+                orderID = createOrder(customersIDfromLogin);
             } else {
                 System.out.println("Active Order ID: " + orderID);
             }
@@ -87,10 +89,10 @@ public class Repository {
         return orderID;
     }
 
-    public int createOrder(int customerID){
+    public int createOrder(int customerID) {
         int orderID = 0;
         try (Connection con = getConnection();
-            CallableStatement callCreateOrder = con.prepareCall("CALL CreateOrder(?,?)")){
+             CallableStatement callCreateOrder = con.prepareCall("CALL CreateOrder(?,?)")) {
             callCreateOrder.setInt(1, customerID);
             callCreateOrder.registerOutParameter(2, Types.INTEGER);
             callCreateOrder.executeQuery();
@@ -137,21 +139,22 @@ public class Repository {
     }
 
     // KATEGORIER IN I LIST
-    public void getCategories(){    //FUNKAR UTMÄRKT UTAN EN LISTA!
-            try (Connection con = getConnection();
-                 Statement statement = con.createStatement();
-                 ResultSet rs = statement.executeQuery("SELECT ID as numb, NAME FROM category")) {
-                while (rs.next()) {
-                    System.out.println(rs.getString("Name"));
-                }
-                System.out.println("-----------------------------" +"\n");
-            } catch (SQLException e) {
-                e.printStackTrace();
+    public void getCategories() {    //FUNKAR UTMÄRKT UTAN EN LISTA!
+        try (Connection con = getConnection();
+             Statement statement = con.createStatement();
+             ResultSet rs = statement.executeQuery("SELECT ID as article, NAME FROM category")) {
+            while (rs.next()) {
+                System.out.print("Category: " + rs.getString("article") + ": ");
+                System.out.println(rs.getString("Name"));
             }
+            System.out.println("-----------------------------" + "\n");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     //FÄRGER IN I LIST
-    public String getColours(){                                                         //FUNKAR UTMÄRKT UTAN EN LISTA HÄR OCKSÅ!
+    public String getColours() {                                                         //FUNKAR UTMÄRKT UTAN EN LISTA HÄR OCKSÅ!
         try (Connection con = getConnection();
              Statement statement = con.createStatement();
              ResultSet rs = statement.executeQuery("SELECT NAME FROM colour")) {
@@ -166,11 +169,11 @@ public class Repository {
         return colour.toString();
     }
 
-    public void getShoeInfo(int shoeIDInput){
+    public void getShoeInfo(int shoeIDInput) {
         try (Connection con = getConnection();
-            CallableStatement callgetShoeInfo = con.prepareCall("CALL GetShoeDetails(?)")){
+             CallableStatement callgetShoeInfo = con.prepareCall("CALL GetShoeDetails(?)")) {
             callgetShoeInfo.setInt(1, shoeIDInput);
-            ResultSet rs= callgetShoeInfo.executeQuery();
+            ResultSet rs = callgetShoeInfo.executeQuery();
 
             while (rs.next()) {
                 System.out.println("Name: " + rs.getInt("name"));
@@ -180,17 +183,18 @@ public class Repository {
                 System.out.println("Brand: " + rs.getString("Brand"));
                 System.out.println("Colour: " + rs.getString("Colour"));
                 System.out.println("Category: " + rs.getString("Category"));
-                System.out.println("--------------------------" +"\n");
+                System.out.println("--------------------------" + "\n");
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
     }
+
     public void getShoeDetailsByCategory() {
         // Prompt the user for a category ID
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter category ID: ");
+        System.out.print("Enter category number: ");
         int categoryIDInput = scanner.nextInt();
 
         try (Connection con = DriverManager.getConnection(
@@ -205,26 +209,26 @@ public class Repository {
             // Starting SP
             callgetShoesByCategory.executeQuery();
 
-                try (ResultSet rs = callgetShoesByCategory.getResultSet()) {
-                    while (rs.next()) {
-                        int name = rs.getInt("name");
-                        int price = rs.getInt("price");
-                        int size = rs.getInt("size");
-                        int balance = rs.getInt("Storage_balance");
-                        String brand = rs.getString("brand");
-                        String colours = rs.getString("colour");
-                        String categories = rs.getString("categories");
+            try (ResultSet rs = callgetShoesByCategory.getResultSet()) {
+                while (rs.next()) {
+                    int name = rs.getInt("name");
+                    int price = rs.getInt("price");
+                    int size = rs.getInt("size");
+                    int balance = rs.getInt("Storage_balance");
+                    String brand = rs.getString("brand");
+                    String colours = rs.getString("colour");
+                    String categories = rs.getString("categories");
 
-                        System.out.println("Name: " + name);
-                        System.out.println("Price: " + price);
-                        System.out.println("Size: " + size);
-                        System.out.println("Balance: " + balance);
-                        System.out.println("Brand: " + brand);
-                        System.out.println("Colours: " + colours);
-                        System.out.println("Categories: " + categories);
-                        System.out.println("-----------------------------" + "\n");
-                    }
+                    System.out.println("Name: " + name);
+                    System.out.println("Price: " + price);
+                    System.out.println("Size: " + size);
+                    System.out.println("Balance: " + balance);
+                    System.out.println("Brand: " + brand);
+                    System.out.println("Colours: " + colours);
+                    System.out.println("Categories: " + categories);
+                    System.out.println("-----------------------------" + "\n");
                 }
+            }
 
 
         } catch (SQLException e) {
@@ -232,9 +236,22 @@ public class Repository {
         }
     }
 
+    public void confirmPurchase(int activeOrderId) {
+        try (Connection con = getConnection();
+             CallableStatement confirmOrder = con.prepareCall("CALL confirmOrder(?)")) {
+            confirmOrder.setInt(1, activeOrderId);
+            confirmOrder.executeQuery();
+
+
+        } catch (SQLException e) {
+            System.out.println("Ett fel uppstod: " + e.getMessage());
+        }
+    }
+
+
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(p.getProperty("url"), p.getProperty("user"), p.getProperty("password"));
     }
 
-
 }
+
