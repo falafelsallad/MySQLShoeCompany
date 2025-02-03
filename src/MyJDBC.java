@@ -6,8 +6,8 @@ public class MyJDBC {
         try {
             Connection connection = DriverManager.getConnection(
                     "jdbc:mysql://127.0.0.1:3306/shoeforsale?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true",
-                    "root",
-                    "Elonmusk3000"
+                    "trash",
+                    "password"
             );
             Repository repository = new Repository();
 
@@ -15,10 +15,17 @@ public class MyJDBC {
             int customerID = repository.startLogIn();
             int orderID = repository.getPaymentStatus(customerID);
             repository.getCategories(); // TODO: FIXA SÅ ATT MAN KAN VÄLJA KATEGORI
-            repository.getColours();
+            //repository.getColours();
+            repository.getShoeDetailsByCategory();
             repository.AddToCart(orderID);
+            System.out.println("Är du klar med ditt köp?? Y/N");
+            String svar= scan.next();
+            if (svar.equalsIgnoreCase("Y")){
+                repository.confirmPurchase(orderID);
+                System.out.println("Din betalning är klar");
+            }
 
-           repository.getShoeInfo(2);
+
 
         } catch (SQLException e) {
             e.printStackTrace();
