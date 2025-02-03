@@ -30,38 +30,64 @@ public class Repository {
     public int startLogIn() {
         int customerIDFromLogIn;
         Scanner scan = new Scanner(System.in);
+        while (true) {
+            try (Connection con = getConnection();
+                 CallableStatement callLogin = con.prepareCall("CALL CustomerLogin (?,?,?)")) {
 
-        try (Connection con = getConnection();
-            CallableStatement callLogin = con.prepareCall("CALL CustomerLogin (?,?,?)")) {
+                System.out.println("Enter username:");
+                String username = scan.next();
 
-            System.out.println("Enter username:");
-            String username = scan.next();
+                System.out.println("Enter password:");
+                String password = scan.next();
 
-            System.out.println("Enter password:");
-            String password = scan.next();
-
-            callLogin.setString(1, username);
-            callLogin.setString(2, password);
-            callLogin.registerOutParameter(3, Types.INTEGER);
-
-            callLogin.executeQuery();
-            customerIDFromLogIn = callLogin.getInt(3);
-
-            if (customerIDFromLogIn > 0) {
-                System.out.println("Login successful, customer " + customerIDFromLogIn);
-                ResultSet resultSet = callLogin.executeQuery("SELECT customer.firstname, customer.lastname FROM customer WHERE ID = " + customerIDFromLogIn);
-                while (resultSet.next()) {
-                    System.out.print("Welcome " + resultSet.getString("firstname") + " ");
-                    System.out.println(resultSet.getString("lastname") + "!");
+                int ifUsernameExists = usernameControl(username);
+                if (ifUsernameExists == 0) {
+                    System.out.println("Username does not exist, please try again");
+                    continue;
                 }
-            } else {
-                System.out.println("Login failed");
+
+                callLogin.setString(1, username);
+                callLogin.setString(2, password);
+                callLogin.registerOutParameter(3, Types.INTEGER);
+
+                callLogin.executeQuery();
+
+
+                customerIDFromLogIn = callLogin.getInt(3);
+
+                if (customerIDFromLogIn > 0) {
+                    System.out.println("Login successful, customer " + customerIDFromLogIn);
+                    ResultSet resultSet = callLogin.executeQuery("SELECT customer.firstname, customer.lastname FROM customer WHERE ID = " + customerIDFromLogIn);
+                    while (resultSet.next()) {
+                        System.out.print("Welcome " + resultSet.getString("firstname") + " ");
+                        System.out.println(resultSet.getString("lastname") + "!");
+                    }
+                }
+                if (customerIDFromLogIn > 0) {
+                    break;
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
+        }
+        return customerIDFromLogIn;
+    }
+
+    public int usernameControl(String usernameInput) throws SQLException {
+        int ifUsernameExists = 0;
+        try (Connection con = getConnection();
+        CallableStatement callUsernameControl = con.prepareCall("CALL UsernameControl(?,?)")){
+            callUsernameControl.setString(1, usernameInput);
+            callUsernameControl.registerOutParameter(2, Types.INTEGER);
+            callUsernameControl.executeQuery();
+            ifUsernameExists = callUsernameControl.getInt(2);
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
-        return customerIDFromLogIn;
+
+        return ifUsernameExists;
     }
 
     // KONTROLL OM DE ÄR AKTIVA ELLER BETALDA
