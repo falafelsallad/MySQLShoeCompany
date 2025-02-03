@@ -20,7 +20,7 @@ public class Repository {
 
     public Repository() {
         try {
-            p.load(new FileInputStream("C:\\Users\\fatim\\Documents\\GitHub\\MySQLShoeCompany\\src\\settings.properties"));
+            p.load(new FileInputStream("C:\\Users\\Ägaren\\Documents\\GitHub\\MySQLShoeCompany\\src\\settings.properties"));
         } catch (Exception e) {
             e.printStackTrace();
         }

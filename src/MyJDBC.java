@@ -6,8 +6,8 @@ public class MyJDBC {
         try {
             Connection connection = DriverManager.getConnection(
                     "jdbc:mysql://127.0.0.1:3306/shoeforsale?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true",
-                    "root",
-                    "Elonmusk3000"
+                    "trash",
+                    "password"
             );
             Repository repository = new Repository();
 
