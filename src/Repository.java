@@ -68,6 +68,7 @@ public class Repository {
                 if (customerIDFromLogIn > 0) {
                     break;
                 }
+
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -139,31 +140,57 @@ public class Repository {
         Scanner scan = new Scanner(System.in);
         int shoeIDInput;
         int shoeAmount;
-        try (Connection con = getConnection();
-             CallableStatement callAddToCart = con.prepareCall("CALL AddToCart(?,?,?)");) {
-            System.out.println("Which shoe would you like to add to your cart?");
-            shoeIDInput = scan.nextInt();
-            System.out.println("How many would you like to add?");
-            shoeAmount = scan.nextInt();
-            callAddToCart.setInt(1, orderID); // orderID
-            callAddToCart.setInt(2, shoeIDInput); // ShoeID
-            callAddToCart.setInt(3, shoeAmount); // Quantity
-            callAddToCart.executeQuery();
-            Statement statement = con.createStatement();
-            ResultSet resultSet = callAddToCart.executeQuery("SELECT * FROM orderitem WHERE orderID = " + orderID);
+        while (true) {
+            try (Connection con = getConnection();
+                 CallableStatement callAddToCart = con.prepareCall("CALL AddToCart(?,?,?)");) {
+                System.out.println("Which shoe would you like to add to your cart?");
+                shoeIDInput = scan.nextInt();
 
-            while (resultSet.next()) { // TODO Shoes should have a name
-                System.out.println("Order ID: " + resultSet.getInt("orderID"));
-                System.out.println("Shoe: " + resultSet.getInt("shoeID"));
-                System.out.println("Quantity: " + resultSet.getInt("amount"));
-                System.out.println("Total price: " + resultSet.getInt("price"));
-                System.out.println("-----------------------------" + "\n");
+                if (shoeControl(shoeIDInput) == 0) {
+                    System.out.println("Shoe does not exist, please try again");
+                    continue;
+                }
+
+                System.out.println("How many would you like to add?");
+                shoeAmount = scan.nextInt();
+                callAddToCart.setInt(1, orderID); // orderID
+                callAddToCart.setInt(2, shoeIDInput); // ShoeID
+                callAddToCart.setInt(3, shoeAmount); // Quantity
+                callAddToCart.executeQuery();
+
+                ResultSet resultSet = callAddToCart.executeQuery("SELECT * FROM orderitem WHERE orderID = " + orderID);
+
+                while (resultSet.next()) { // TODO Shoes should have a name
+                    System.out.println("Order ID: " + resultSet.getInt("orderID"));
+                    System.out.println("Shoe: " + resultSet.getInt("shoeID"));
+                    System.out.println("Quantity: " + resultSet.getInt("amount"));
+                    System.out.println("Total price: " + resultSet.getInt("price"));
+                    System.out.println("-----------------------------" + "\n");
+                }
+                if (shoeIDInput != 0) {
+                    break;
+                }
+
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
+        }
+    }
 
+    public int shoeControl(int shoeId) {
+        int ifShoeExists = 0;
+        try (Connection con = getConnection();
+            CallableStatement callShoeControl = con.prepareCall("CALL ShoeControl(?, ?)")) {
+            callShoeControl.setInt(1, shoeId);
+            callShoeControl.executeQuery();
+            ifShoeExists = callShoeControl.getInt(2);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
+            return ifShoeExists;
+        }
+
+
 
     // KATEGORIER IN I LIST
     public void getCategories() {    //FUNKAR UTMÄRKT UTAN EN LISTA!
@@ -198,7 +225,7 @@ public class Repository {
 
     public void getShoeInfo(int shoeIDInput) {
         try (Connection con = getConnection();
-             CallableStatement callgetShoeInfo = con.prepareCall("CALL GetShoeDetails(?)")) {
+            CallableStatement callgetShoeInfo = con.prepareCall("CALL GetShoeDetails(?)")) {
             callgetShoeInfo.setInt(1, shoeIDInput);
             ResultSet rs = callgetShoeInfo.executeQuery();
 
@@ -224,10 +251,7 @@ public class Repository {
         System.out.print("Enter category number: ");
         int categoryIDInput = scanner.nextInt();
 
-        try (Connection con = DriverManager.getConnection(
-                p.getProperty("url"),
-                p.getProperty("user"),
-                p.getProperty("password"));
+        try (Connection con = getConnection();
              CallableStatement callgetShoesByCategory = con.prepareCall("CALL GetShoesByCategory(?)")) {
 
             // Set input parameter
