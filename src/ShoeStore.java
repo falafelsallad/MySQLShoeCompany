@@ -2,7 +2,7 @@ public class ShoeStore {
 
 
 
-    public void shoestoe(){
+    public void shoestore(){
         System.out.println("Välkommen till den bästa onlinebutiken");
     }
 

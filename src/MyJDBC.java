@@ -11,15 +11,14 @@ public class MyJDBC {
             );
             Repository repository = new Repository();
 
-            Statement statement = connection.createStatement();
             Scanner scan = new Scanner(System.in);
-
-
-//            repository.startLogIn();
-//            repository.getCategories();
+            int customerID = repository.startLogIn();
+            int orderID = repository.getPaymentStatus(customerID);
+            repository.getCategories(); // TODO: FIXA SÅ ATT MAN KAN VÄLJA KATEGORI
             repository.getColours();
+            repository.AddToCart(orderID);
 
-            repository.getShoeInfo(2);
+           repository.getShoeInfo(2);
 
         } catch (SQLException e) {
             e.printStackTrace();

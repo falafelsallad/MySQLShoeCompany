@@ -106,22 +106,29 @@ public class Repository {
 
 
     // ADD TO CART
-    public void AddToCart(int orderID, int shoeID, int amountInOrder) {
+    public void AddToCart(int orderID) {
+        Scanner scan = new Scanner(System.in);
+        int shoeIDInput;
+        int shoeAmount;
         try (Connection con = getConnection();
              CallableStatement callAddToCart = con.prepareCall("CALL AddToCart(?,?,?)");) {
-
+            System.out.println("Which shoe would you like to add to your cart?");
+            shoeIDInput = scan.nextInt();
+            System.out.println("How many would you like to add?");
+            shoeAmount = scan.nextInt();
             callAddToCart.setInt(1, orderID); // orderID
-            callAddToCart.setInt(2, 1); // ShoeID
-            callAddToCart.setInt(3, 1); // Quantity
+            callAddToCart.setInt(2, shoeIDInput); // ShoeID
+            callAddToCart.setInt(3, shoeAmount); // Quantity
             callAddToCart.executeQuery();
-
+            Statement statement = con.createStatement();
             ResultSet resultSet = callAddToCart.executeQuery("SELECT * FROM orderitem WHERE orderID = " + orderID);
 
-            while (resultSet.next()) {
+            while (resultSet.next()) { // TODO Shoes should have a name
                 System.out.println("Order ID: " + resultSet.getInt("orderID"));
-                System.out.println("Shoe ID: " + resultSet.getInt("shoeID"));
+                System.out.println("Shoe: " + resultSet.getInt("shoeID"));
                 System.out.println("Quantity: " + resultSet.getInt("amount"));
-                System.out.println("Price: " + resultSet.getInt("price"));
+                System.out.println("Total price: " + resultSet.getInt("price"));
+                System.out.println("-----------------------------");
             }
 
         } catch (SQLException e) {
@@ -138,6 +145,7 @@ public class Repository {
                 while (rs.next()) {
                     System.out.println(rs.getString("Name"));
                 }
+                System.out.println("-----------------------------");
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -153,6 +161,7 @@ public class Repository {
             while (rs.next()) {
                 System.out.println(rs.getString("Name"));
             }
+            System.out.println("-----------------------------");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -166,12 +175,13 @@ public class Repository {
             ResultSet rs= callgetShoeInfo.executeQuery();
 
             while (rs.next()) {
-                System.out.println("Price " + rs.getInt("Price"));
-                System.out.println("Size " + rs.getInt("Size"));
-                System.out.println("storage " + rs.getInt("Balance"));
-                System.out.println("brand " + rs.getString("Brand"));
-                System.out.println("colour " + rs.getString("Colour"));
-                System.out.println("Category " + rs.getString("Category"));
+                System.out.println("Name: " + rs.getInt("name"));
+                System.out.println("Price: " + rs.getInt("Price"));
+                System.out.println("Size: " + rs.getInt("Size"));
+                System.out.println("Storage: " + rs.getInt("Balance"));
+                System.out.println("Brand: " + rs.getString("Brand"));
+                System.out.println("Colour: " + rs.getString("Colour"));
+                System.out.println("Category: " + rs.getString("Category"));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -199,6 +209,7 @@ public class Repository {
 
                 try (ResultSet rs = callgetShoesByCategory.getResultSet()) {
                     while (rs.next()) {
+                        int name = rs.getInt("name");
                         int price = rs.getInt("price");
                         int size = rs.getInt("size");
                         int balance = rs.getInt("Storage_balance");
@@ -206,6 +217,7 @@ public class Repository {
                         String colours = rs.getString("colour");
                         String categories = rs.getString("categories");
 
+                        System.out.println("Name: " + name);
                         System.out.println("Price: " + price);
                         System.out.println("Size: " + size);
                         System.out.println("Balance: " + balance);
