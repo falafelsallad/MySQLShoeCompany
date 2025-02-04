@@ -22,7 +22,7 @@ public class Repository {
 
     public Repository() {
         try {
-            p.load(new FileInputStream("C:\\Users\\fatim\\Documents\\GitHub\\MySQLShoeCompany\\src\\settings.properties"));
+            p.load(new FileInputStream("C:\\Users\\Ägaren\\Documents\\GitHub\\MySQLShoeCompany\\src\\settings.properties"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -191,6 +191,19 @@ public class Repository {
         }
 
 
+    public int categoryControl(int shoeId) {
+        int ifCategoryExists = 0;
+        try (Connection con = getConnection();
+             CallableStatement callShoeControl = con.prepareCall("CALL categoryControl(?, ?)")) {
+            callShoeControl.setInt(1, shoeId);
+            callShoeControl.executeQuery();
+            ifCategoryExists = callShoeControl.getInt(2);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ifCategoryExists;
+    }
+
 
     // KATEGORIER IN I LIST
     public void getCategories() {    //FUNKAR UTMÄRKT UTAN EN LISTA!
@@ -208,19 +221,19 @@ public class Repository {
     }
 
     //FÄRGER IN I LIST
-    public String getColours() {                                                         //FUNKAR UTMÄRKT UTAN EN LISTA HÄR OCKSÅ!
+    public void getColours() {                                                         //FUNKAR UTMÄRKT UTAN EN LISTA HÄR OCKSÅ!
         try (Connection con = getConnection();
              Statement statement = con.createStatement();
-             ResultSet rs = statement.executeQuery("SELECT NAME FROM colour")) {
+             ResultSet rs = statement.executeQuery("SELECT ID as colour, NAME FROM colour ORDER BY ID ASC")) {
 
             while (rs.next()) {
+                System.out.print("Colour: " + rs.getString("colour") + ": ");
                 System.out.println(rs.getString("Name"));
             }
             System.out.println("-----------------------------");
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return colour.toString();
     }
 
     public void getShoeInfo(int shoeIDInput) {
@@ -246,44 +259,102 @@ public class Repository {
     }
 
     public void getShoeDetailsByCategory() {
-        // Prompt the user for a category ID
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter category number: ");
-        int categoryIDInput = scanner.nextInt();
+        while (true) {
+            // Prompt the user for a category
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter category number: ");
+            int categoryIDInput = scanner.nextInt();
 
-        try (Connection con = getConnection();
-             CallableStatement callgetShoesByCategory = con.prepareCall("CALL GetShoesByCategory(?)")) {
 
-            // Set input parameter
-            callgetShoesByCategory.setInt(1, categoryIDInput);
+            try (Connection con = getConnection();
 
-            // Starting SP
-            callgetShoesByCategory.executeQuery();
+                 CallableStatement callgetShoesByCategory = con.prepareCall("CALL GetShoesByCategory(?)")) {
 
-            try (ResultSet rs = callgetShoesByCategory.getResultSet()) {
-                while (rs.next()) {
-                    int name = rs.getInt("name");
-                    int price = rs.getInt("price");
-                    int size = rs.getInt("size");
-                    int balance = rs.getInt("Storage_balance");
-                    String brand = rs.getString("brand");
-                    String colours = rs.getString("colour");
-                    String categories = rs.getString("categories");
+                // Set input parameter
+                callgetShoesByCategory.setInt(1, categoryIDInput);
 
-                    System.out.println("Name: " + name);
-                    System.out.println("Price: " + price);
-                    System.out.println("Size: " + size);
-                    System.out.println("Balance: " + balance);
-                    System.out.println("Brand: " + brand);
-                    System.out.println("Colours: " + colours);
-                    System.out.println("Categories: " + categories);
-                    System.out.println("-----------------------------" + "\n");
+                //Hanterar ifall vi matar in kategori som ej finns
+                callgetShoesByCategory.executeQuery();
+                if (categoryControl(categoryIDInput) == 0) {
+                    System.out.println("Shoe does not exist, please try again");
+                    continue;
                 }
+                // Starting SP
+                try (ResultSet rs = callgetShoesByCategory.getResultSet()) {
+                    while (rs.next()) {
+                        int name = rs.getInt("ARTICLENUMBER");
+                        int price = rs.getInt("price");
+                        int size = rs.getInt("size");
+                        int balance = rs.getInt("Storage_balance");
+                        String brand = rs.getString("brand");
+                        String colours = rs.getString("colour");
+                        String categories = rs.getString("categories");
+
+                        System.out.print("Article number: " + name + " | ");
+                        System.out.print("Price: " + price + " | ");
+                        System.out.print("Size: " + size + " | ");
+                        System.out.print("Balance: " + balance + " | ");
+                        System.out.print("Brand: " + brand + " | ");
+                        System.out.print("Colours: " + colours + " | ");
+                        System.out.print("Categorie: " + categories);
+                        System.out.println("\n");
+                    }
+                }
+
+            break;
+            } catch (SQLException e) {
+                throw new RuntimeException("Error retrieving shoes by category", e);
             }
+        }
+    }
+
+    public void getShoeDetailsByColour() {
+        while (true) {
+            // Prompt the user for a colour
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter colour: ");
+            int colourIDinput = scanner.nextInt();
 
 
-        } catch (SQLException e) {
-            throw new RuntimeException("Error retrieving shoes by category", e);
+            try (Connection con = getConnection();
+
+                 CallableStatement callgetShoeDetailsByColour = con.prepareCall("CALL GetShoesByColour(?)")) {
+
+                // Set input parameter
+                callgetShoeDetailsByColour.setInt(1, colourIDinput);
+
+                //Hanterar ifall vi matar in kategori som ej finns
+                callgetShoeDetailsByColour.executeQuery();
+                if (categoryControl(colourIDinput) == 0) {
+                    System.out.println("Shoe does not exist, please try again");
+                    continue;
+                }
+                // Starting SP
+                try (ResultSet rs = callgetShoeDetailsByColour.getResultSet()) {
+                    while (rs.next()) {
+                        int name = rs.getInt("ARTICLENUMBER");
+                        int price = rs.getInt("price");
+                        int size = rs.getInt("size");
+                        int balance = rs.getInt("Storage_balance");
+                        String brand = rs.getString("brand");
+                        String colours = rs.getString("colours");
+                        String categories = rs.getString("categories");
+
+                        System.out.print("Article number: " + name + " | ");
+                        System.out.print("Price: " + price + " | ");
+                        System.out.print("Size: " + size + " | ");
+                        System.out.print("Balance: " + balance + " | ");
+                        System.out.print("Brand: " + brand + " | ");
+                        System.out.print("Colours: " + colours + " | ");
+                        System.out.print("Categorie: " + categories);
+                        System.out.println("\n");
+                    }
+                }
+
+                break;
+            } catch (SQLException e) {
+                throw new RuntimeException("Error retrieving shoes by category", e);
+            }
         }
     }
 
