@@ -12,14 +12,19 @@ public class MyJDBC {
             Repository repository = new Repository();
 
             Scanner scan = new Scanner(System.in);
+            int customerID = repository.startLogIn();
+            int orderID = repository.getPaymentStatus(customerID);
+
 //            repository.getColours();
 //            repository.getShoeDetailsByColour();
-//           int customerID = repository.startLogIn();
-//           int orderID = repository.getPaymentStatus(customerID);
 //            repository.getCategories(); // TODO: FIXA SÅ ATT MAN KAN VÄLJA KATEGORI
 //            repository.getShoeDetailsByCategory();
 //            //repository.AddToCart(orderID);
+
+
+
 //            System.out.println("Är du klar med ditt köp?? Y/N");
+
 //            String svar= scan.next();
 //            if (svar.equalsIgnoreCase("Y")){
 //                repository.confirmPurchase(orderID);

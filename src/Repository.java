@@ -58,7 +58,7 @@ public class Repository {
                 customerIDFromLogIn = callLogin.getInt(3);
 
                 if (customerIDFromLogIn > 0) {
-                    System.out.println("Login successful, customer " + customerIDFromLogIn);
+                    System.out.println("Login successful, customer identification " + customerIDFromLogIn);
                     ResultSet resultSet = callLogin.executeQuery("SELECT customer.firstname, customer.lastname FROM customer WHERE ID = " + customerIDFromLogIn);
                     while (resultSet.next()) {
                         System.out.print("Welcome " + resultSet.getString("firstname") + " ");
@@ -99,6 +99,7 @@ public class Repository {
         int orderID = 0;
         try (Connection con = getConnection();
             CallableStatement callPaymentStatus = con.prepareCall("CALL CheckPaymentStatus(?,?)")) {
+
             callPaymentStatus.setInt(1, customersIDfromLogin);
             callPaymentStatus.registerOutParameter(2, Types.INTEGER);
 
@@ -110,6 +111,8 @@ public class Repository {
                 orderID = createOrder(customersIDfromLogin);
             } else {
                 System.out.println("Active Order ID: " + orderID);
+                System.out.println("Current in your cart: ");
+                getCustomerCart(orderID, con);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -364,6 +367,45 @@ public class Repository {
             confirmOrder.setInt(1, activeOrderId);
             confirmOrder.executeQuery();
 
+
+        } catch (SQLException e) {
+            System.out.println("Ett fel uppstod: " + e.getMessage());
+        }
+    }
+
+    public void getCustomerCart(int activeOrderId, Connection con){
+        try (
+             CallableStatement callgetCustomerCart = con.prepareCall("CALL getCustomerCart(?)")) {
+            callgetCustomerCart.setInt(1, activeOrderId);
+
+            try (ResultSet rs = callgetCustomerCart.executeQuery()) {
+                if (!rs.isBeforeFirst()) {
+                    System.out.println("No items found in the cart.");
+                }
+                while (rs.next()) {
+                    int articleNumber = rs.getInt("articleNumber");
+                    String brand = rs.getString("brand");
+                    String colours = rs.getString("colours");
+                    String categories = rs.getString("categories");
+                    int price = rs.getInt("price");
+                    int amount = rs.getInt("amount");
+                    int size = rs.getInt("size");
+
+                    System.out.print("Art nmbr: " + articleNumber + " | ");
+                    System.out.print("Brand: " + brand + " | ");
+                    System.out.print("Colours: " + colours + " | ");
+                    System.out.print("Categorie: " + categories);
+                    System.out.print("Price: " + price + " | ");
+                    System.out.print("Amount: " + amount + " | ");
+                    System.out.print("Size: " + size + " | ");
+
+
+
+                    System.out.print("Price: " + price + " | ");
+
+                    System.out.println();
+                }
+            }
 
         } catch (SQLException e) {
             System.out.println("Ett fel uppstod: " + e.getMessage());
