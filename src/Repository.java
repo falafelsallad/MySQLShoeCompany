@@ -138,38 +138,76 @@ public class Repository {
             try (Connection con = getConnection();
                  CallableStatement callAddToCart = con.prepareCall("CALL AddToCart(?,?,?)");) {
                 System.out.println("Which shoe would you like to add to your cart?");
+
+
+                if (!scan.hasNext()){
+                    System.out.println("Not valid input, try again");
+                    scan.nextInt();
+                    continue;
+                }
+
                 shoeIDInput = scan.nextInt();
 
                 if (shoeControl(shoeIDInput) == 0) {
                     System.out.println("Shoe does not exist, please try again");
+                    scan.nextInt();
                     continue;
                 }
 
                 System.out.println("How many would you like to add?");
+
+                if (!scan.hasNext()){
+                    System.out.println("Not valid input, try again");
+                    scan.nextInt();
+                    continue;
+                }
+
                 shoeAmount = scan.nextInt();
+
+
                 callAddToCart.setInt(1, orderID); // orderID
                 callAddToCart.setInt(2, shoeIDInput); // ShoeID
                 callAddToCart.setInt(3, shoeAmount); // Quantity
-                callAddToCart.executeQuery();
 
-                ResultSet resultSet = callAddToCart.executeQuery("SELECT * FROM orderitem WHERE orderID = " + orderID);
 
-                while (resultSet.next()) { // TODO Shoes should have a name
-                    System.out.println("Order ID: " + resultSet.getInt("orderID"));
-                    System.out.println("Shoe: " + resultSet.getInt("shoeID"));
-                    System.out.println("Quantity: " + resultSet.getInt("amount"));
-                    System.out.println("Total price: " + resultSet.getInt("price"));
-                    System.out.println("-----------------------------" + "\n");
+                try (ResultSet rs = callAddToCart.executeQuery()) {
+                    if (rs.next()) {
+                        System.out.println(rs.getString(1));  // gets message if everythng when well
+                    }
                 }
+
+                try (PreparedStatement checkOrder = con.prepareStatement("SELECT * FROM orderitem WHERE orderID = ?")) {
+                    checkOrder.setInt(1, orderID);
+                    ResultSet resultSet = checkOrder.executeQuery();
+
+                    System.out.println("Current order details:");
+                    while (resultSet.next()) {
+                        System.out.println("Order ID: " + resultSet.getInt("orderID"));
+                        System.out.println("Shoe ID: " + resultSet.getInt("shoeID"));
+                        System.out.println("Quantity: " + resultSet.getInt("amount"));
+                        System.out.println("Total price: " + resultSet.getInt("price"));
+                        System.out.println("-----------------------------\n");
+                    }
+                }
+//                ResultSet resultSet = callAddToCart.executeQuery("SELECT * FROM orderitem WHERE orderID = " + orderID);
+//
+//                while (resultSet.next()) { // TODO Shoes should have a name
+//                    System.out.println("Order ID: " + resultSet.getInt("orderID"));
+//                    System.out.println("Shoe: " + resultSet.getInt("shoeID"));
+//                    System.out.println("Quantity: " + resultSet.getInt("amount"));
+//                    System.out.println("Total price: " + resultSet.getInt("price"));
+//                    System.out.println("-----------------------------" + "\n");
+//                }
                 if (shoeIDInput != 0) {
                     break;
                 }
 
             } catch (SQLException e) {
+                System.out.println("SQLL ERROR :" + e.getMessage());
                 e.printStackTrace();
             }catch (InputMismatchException e){
                 System.out.println("Pleace insert correct input. choose the article number or ");
-                e.printStackTrace();
+                scan.next();
             }
         }
     }
