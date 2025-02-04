@@ -10,7 +10,6 @@ public class MyJDBC {
                     "password"
             );
             Repository repository = new Repository();
-
             Scanner scan = new Scanner(System.in);
             int customerID = repository.startLogIn();
             int orderID = repository.getPaymentStatus(customerID);

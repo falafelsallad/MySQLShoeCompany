@@ -2,11 +2,8 @@ import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.sql.*;
-import java.util.Scanner;
 
 import static java.sql.DriverManager.getConnection;
 
@@ -35,12 +32,12 @@ public class Repository {
         while (true) {
             try (Connection con = getConnection();
                  CallableStatement callLogin = con.prepareCall("CALL CustomerLogin (?,?,?)")) {
-
+                System.out.println("Welcome to shoe store 2025, please log in!");
                 System.out.println("Enter username:");
-                String username = scan.next();
+                String username = scan.next().toLowerCase(Locale.ROOT).trim();
 
                 System.out.println("Enter password:");
-                String password = scan.next();
+                String password = scan.next().toLowerCase(Locale.ROOT).trim();
 
                 int ifUsernameExists = usernameControl(username);
                 if (ifUsernameExists == 0) {
@@ -112,7 +109,7 @@ public class Repository {
             } else {
                 System.out.println("Active Order ID: " + orderID);
                 System.out.println("Current in your cart: ");
-                getCustomerCart(orderID, con);
+                getCustomerCart(orderID);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -373,8 +370,8 @@ public class Repository {
         }
     }
 
-    public void getCustomerCart(int activeOrderId, Connection con){
-        try (
+    public void getCustomerCart(int activeOrderId){
+        try (Connection con = getConnection();
              CallableStatement callgetCustomerCart = con.prepareCall("CALL getCustomerCart(?)")) {
             callgetCustomerCart.setInt(1, activeOrderId);
 
