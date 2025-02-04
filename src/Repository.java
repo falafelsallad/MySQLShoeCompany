@@ -8,13 +8,7 @@ import java.sql.*;
 import static java.sql.DriverManager.getConnection;
 
 public class Repository {
-    shoes shoe = new shoes();
-    Categories category = new Categories();
-    Colours colour = new Colours();
-    List<String> listColour = new ArrayList<>();
-    List<String> listCategories = new ArrayList<>();
-    Colours coloursFromDataBase;
-    Categories categoriesFromDataBase;
+
     private Properties p = new Properties();
 
     public Repository() {
@@ -172,6 +166,9 @@ public class Repository {
                 }
 
             } catch (SQLException e) {
+                e.printStackTrace();
+            }catch (InputMismatchException e){
+                System.out.println("Pleace insert correct input. choose the article number or ");
                 e.printStackTrace();
             }
         }
