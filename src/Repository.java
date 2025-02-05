@@ -192,15 +192,6 @@ public class Repository {
                         System.out.println("-----------------------------\n");
                     }
                 }
-//                ResultSet resultSet = callAddToCart.executeQuery("SELECT * FROM orderitem WHERE orderID = " + orderID);
-//
-//                while (resultSet.next()) { // TODO Shoes should have a name
-//                    System.out.println("Order ID: " + resultSet.getInt("orderID"));
-//                    System.out.println("Shoe: " + resultSet.getInt("shoeID"));
-//                    System.out.println("Quantity: " + resultSet.getInt("amount"));
-//                    System.out.println("Total price: " + resultSet.getInt("price"));
-//                    System.out.println("-----------------------------" + "\n");
-//                }
                 if (shoeIDInput != 0) {
                     break;
                 }
@@ -461,19 +452,6 @@ public class Repository {
             System.out.println("Ett fel uppstod: " + e.getMessage());
         }
     }
-
-
-//    public void showAvailableShoes(List<Shoe> shoes) {
-//        System.out.println("Available shoes:");
-//        for (int i = 0; i < shoes.size(); i++) {
-//            Shoe shoe = shoes.get(i);
-//            System.out.println((i + 1) + ". " + shoe.getBrand() + ", Size: " + shoe.getSize() +
-//                    ", Price: " + shoe.getPrice() + ", Color: " + shoe.getColour() + ", Category: " +shoe.getCategory());
-//        }
-//    }
-
-
-
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(p.getProperty("url"), p.getProperty("user"), p.getProperty("password"));

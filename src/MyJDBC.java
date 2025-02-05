@@ -47,15 +47,4 @@ public class MyJDBC {
             e.printStackTrace();
         }
     }
-
-
-
 }
-
-//            System.out.println("Är du klar med ditt köp?? Y/N");
-
-//            String svar= scan.next();
-//            if (svar.equalsIgnoreCase("Y")){
-//                repository.confirmPurchase(orderID);
-//                System.out.println("Din betalning är klar");
-//            }
