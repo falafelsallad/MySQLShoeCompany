@@ -1,4 +1,6 @@
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class MyJDBC {
@@ -15,7 +17,7 @@ public class MyJDBC {
             int orderID = repository.getPaymentStatus(customerID);
 
             while (true) {
-                System.out.println("Do you want to choose by category or shoe?");
+                System.out.print("Do you want to choose by category or shoe?");
                 System.out.println("CO=colour or CA=Category");
                 System.out.println("-----------------------");
                 System.out.println("To pay please type PAY, else your order will be saved for a later date.");
@@ -32,14 +34,14 @@ public class MyJDBC {
                     repository.getShoeDetailsByCategory();
                     repository.AddToCart(orderID);
 
-                } else if (answer.equalsIgnoreCase("PAY")){
+                } else if (answer.equalsIgnoreCase("PAY")) {
                     repository.confirmPurchase(orderID);
                     System.out.println("Your order has been marked as paid, thank you!");
-                }
-                else if (answer.equalsIgnoreCase("Exit")){
+                    break;
+                } else if (answer.equalsIgnoreCase("Exit")) {
                     System.out.println("Thank you for shopping! Your order has been saved.");
                     break;
-                }else
+                } else
                     System.out.println("You have to insert something");
             }
 
@@ -48,14 +50,4 @@ public class MyJDBC {
         }
     }
 
-
-
 }
-
-//            System.out.println("Är du klar med ditt köp?? Y/N");
-
-//            String svar= scan.next();
-//            if (svar.equalsIgnoreCase("Y")){
-//                repository.confirmPurchase(orderID);
-//                System.out.println("Din betalning är klar");
-//            }
