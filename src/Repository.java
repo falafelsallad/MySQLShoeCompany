@@ -61,7 +61,8 @@ public class Repository {
                 }
 
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                System.out.println("Something went wrong when u tried to log in " + e.getMessage());
+                e.printStackTrace();
             }
         }
 
@@ -78,7 +79,8 @@ public class Repository {
             ifUsernameExists = callUsernameControl.getInt(2);
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            System.out.println("You are not a customer" + e.getMessage());
+            e.printStackTrace();
         }
 
 
@@ -132,6 +134,7 @@ public class Repository {
     // ADD TO CART
     public void AddToCart(int orderID) {
         Scanner scan = new Scanner(System.in);
+
         int shoeIDInput;
         int shoeAmount;
         while (true) {
@@ -226,11 +229,11 @@ public class Repository {
         }
 
 
-    public int categoryControl(int shoeId) {
+    public int categoryControl(String categoryName) {
         int ifCategoryExists = 0;
         try (Connection con = getConnection();
              CallableStatement callShoeControl = con.prepareCall("CALL categoryControl(?, ?)")) {
-            callShoeControl.setInt(1, shoeId);
+            callShoeControl.setString(1, categoryName);
             callShoeControl.executeQuery();
             ifCategoryExists = callShoeControl.getInt(2);
         } catch (SQLException e) {
@@ -239,15 +242,27 @@ public class Repository {
         return ifCategoryExists;
     }
 
+    public int colourControl(String colourName) {
+        int ifcolourExists = 0;
+        try (Connection con = getConnection();
+             CallableStatement callShoeControl = con.prepareCall("CALL colourControl(?, ?)")) {
+            callShoeControl.setString(1, colourName);
+            callShoeControl.executeQuery();
+            ifcolourExists = callShoeControl.getInt(2);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return ifcolourExists;
+    }
+
 
     // KATEGORIER IN I LIST
     public void getCategories() {    //FUNKAR UTMÄRKT UTAN EN LISTA!
         try (Connection con = getConnection();
              Statement statement = con.createStatement();
-             ResultSet rs = statement.executeQuery("SELECT ID as article, NAME FROM category")) {
+             ResultSet rs = statement.executeQuery("SELECT NAME as Category FROM category")) {
             while (rs.next()) {
-                System.out.print("Category: " + rs.getString("article") + ": ");
-                System.out.println(rs.getString("Name"));
+                System.out.println(rs.getString("Category"));
             }
             System.out.println("-----------------------------" + "\n");
         } catch (SQLException e) {
@@ -259,11 +274,10 @@ public class Repository {
     public void getColours() {                                                         //FUNKAR UTMÄRKT UTAN EN LISTA HÄR OCKSÅ!
         try (Connection con = getConnection();
              Statement statement = con.createStatement();
-             ResultSet rs = statement.executeQuery("SELECT ID as colour, NAME FROM colour ORDER BY ID ASC")) {
+             ResultSet rs = statement.executeQuery("SELECT NAME as colour FROM colour ORDER BY ID ASC")) {
 
             while (rs.next()) {
-                System.out.print("Colour: " + rs.getString("colour") + ": ");
-                System.out.println(rs.getString("Name"));
+                System.out.println(rs.getString("colour"));
             }
             System.out.println("-----------------------------");
         } catch (SQLException e) {
@@ -298,7 +312,7 @@ public class Repository {
             // Prompt the user for a category
             Scanner scanner = new Scanner(System.in);
             System.out.print("Enter category number: ");
-            int categoryIDInput = scanner.nextInt();
+            String categoryNameInput = scanner.next().trim().toLowerCase();
 
 
             try (Connection con = getConnection();
@@ -306,12 +320,12 @@ public class Repository {
                  CallableStatement callgetShoesByCategory = con.prepareCall("CALL GetShoesByCategory(?)")) {
 
                 // Set input parameter
-                callgetShoesByCategory.setInt(1, categoryIDInput);
+                callgetShoesByCategory.setString(1, categoryNameInput);
 
                 //Hanterar ifall vi matar in kategori som ej finns
                 callgetShoesByCategory.executeQuery();
-                if (categoryControl(categoryIDInput) == 0) {
-                    System.out.println("Shoe does not exist, please try again");
+                if (categoryControl(categoryNameInput) == 0) {
+                    System.out.println("Category does not exist, please try again");
                     continue;
                 }
                 // Starting SP
@@ -338,7 +352,7 @@ public class Repository {
 
             break;
             } catch (SQLException e) {
-                throw new RuntimeException("Error retrieving shoes by category", e);
+                throw new RuntimeException("Error retrieving shoes by category"+ e.getMessage());
             }
         }
     }
@@ -348,7 +362,7 @@ public class Repository {
             // Prompt the user for a colour
             Scanner scanner = new Scanner(System.in);
             System.out.print("Enter colour: ");
-            int colourIDinput = scanner.nextInt();
+            String colourNameInput = scanner.next().trim().toLowerCase();
 
 
             try (Connection con = getConnection();
@@ -356,11 +370,11 @@ public class Repository {
                  CallableStatement callgetShoeDetailsByColour = con.prepareCall("CALL GetShoesByColour(?)")) {
 
                 // Set input parameter
-                callgetShoeDetailsByColour.setInt(1, colourIDinput);
+                callgetShoeDetailsByColour.setString(1, colourNameInput);
 
                 //Hanterar ifall vi matar in kategori som ej finns
                 callgetShoeDetailsByColour.executeQuery();
-                if (categoryControl(colourIDinput) == 0) {
+                if (colourControl(colourNameInput)==0) {
                     System.out.println("Shoe does not exist, please try again");
                     continue;
                 }
@@ -388,7 +402,7 @@ public class Repository {
 
                 break;
             } catch (SQLException e) {
-                throw new RuntimeException("Error retrieving shoes by category", e);
+                throw new RuntimeException("Error retrieving shoes by category"+  e.getMessage());
             }
         }
     }
@@ -443,6 +457,18 @@ public class Repository {
             System.out.println("Ett fel uppstod: " + e.getMessage());
         }
     }
+
+
+//    public void showAvailableShoes(List<Shoe> shoes) {
+//        System.out.println("Available shoes:");
+//        for (int i = 0; i < shoes.size(); i++) {
+//            Shoe shoe = shoes.get(i);
+//            System.out.println((i + 1) + ". " + shoe.getBrand() + ", Size: " + shoe.getSize() +
+//                    ", Price: " + shoe.getPrice() + ", Color: " + shoe.getColour() + ", Category: " +shoe.getCategory());
+//        }
+//    }
+
+
 
 
     private Connection getConnection() throws SQLException {
