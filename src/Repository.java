@@ -8,7 +8,7 @@ import java.sql.*;
 import static java.sql.DriverManager.getConnection;
 
 public class Repository {
-
+    List<Integer> validShoeIDs = new ArrayList<>();
     private Properties p = new Properties();
 
     public Repository() {
@@ -149,6 +149,7 @@ public class Repository {
                 }
 
                 shoeIDInput = scan.nextInt();
+
 
                 if (shoeControl(shoeIDInput) == 0) {
                     System.out.println("Shoe does not exist, please try again");
@@ -332,7 +333,7 @@ public class Repository {
 
                 try (ResultSet rs = callgetShoesByCategory.getResultSet()) {
                     while (rs.next()) {
-                        int name = rs.getInt("ARTICLENUMBER");
+                        int article = rs.getInt("ARTICLENUMBER");
                         int price = rs.getInt("price");
                         int size = rs.getInt("size");
                         int balance = rs.getInt("Storage_balance");
@@ -340,7 +341,7 @@ public class Repository {
                         String colours = rs.getString("colour");
                         String categories = rs.getString("categories");
 
-                        System.out.print("Article number: " + name + " | ");
+                        System.out.print("Article number: " + article + " | ");
                         System.out.print("Price: " + price + " | ");
                         System.out.print("Size: " + size + " | ");
                         System.out.print("Balance: " + balance + " | ");
@@ -384,7 +385,7 @@ public class Repository {
                 // Starting SP
                 try (ResultSet rs = callgetShoeDetailsByColour.getResultSet()) {
                     while (rs.next()) {
-                        int name = rs.getInt("ARTICLENUMBER");
+                        int article = rs.getInt("ARTICLENUMBER");
                         int price = rs.getInt("price");
                         int size = rs.getInt("size");
                         int balance = rs.getInt("Storage_balance");
@@ -392,7 +393,7 @@ public class Repository {
                         String colours = rs.getString("colours");
                         String categories = rs.getString("categories");
 
-                        System.out.print("Article number: " + name + " | ");
+                        System.out.print("Article number: " + article + " | ");
                         System.out.print("Price: " + price + " | ");
                         System.out.print("Size: " + size + " | ");
                         System.out.print("Balance: " + balance + " | ");
