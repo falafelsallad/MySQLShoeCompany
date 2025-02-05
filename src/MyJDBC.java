@@ -35,6 +35,7 @@ public class MyJDBC {
                 } else if (answer.equalsIgnoreCase("PAY")){
                     repository.confirmPurchase(orderID);
                     System.out.println("Your order has been marked as paid, thank you!");
+                    break;
                 }
                 else if (answer.equalsIgnoreCase("Exit")){
                     System.out.println("Thank you for shopping! Your order has been saved.");
