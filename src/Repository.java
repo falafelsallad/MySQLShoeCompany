@@ -26,7 +26,6 @@ public class Repository {
         while (true) {
             try (Connection con = getConnection();
                  CallableStatement callLogin = con.prepareCall("CALL CustomerLogin (?,?,?)")) {
-                System.out.println("Welcome to shoe store 2025, please log in!");
                 System.out.println("Enter username:");
                 String username = scan.next().toLowerCase(Locale.ROOT).trim();
 
@@ -274,7 +273,7 @@ public class Repository {
     public void getColours() {                                                         //FUNKAR UTMÄRKT UTAN EN LISTA HÄR OCKSÅ!
         try (Connection con = getConnection();
              Statement statement = con.createStatement();
-             ResultSet rs = statement.executeQuery("SELECT NAME as colour FROM colour ORDER BY ID ASC")) {
+             ResultSet rs = statement.executeQuery("SELECT NAME as colour FROM colour")) {
 
             while (rs.next()) {
                 System.out.println(rs.getString("colour"));
@@ -285,6 +284,8 @@ public class Repository {
         }
     }
 
+
+    //används ej i dagsläget men kan anvädas om man vill visa ALLA skor sedan får man välja fritt
     public void getShoeInfo(int shoeIDInput) {
         try (Connection con = getConnection();
             CallableStatement callgetShoeInfo = con.prepareCall("CALL GetShoeDetails(?)")) {
@@ -328,7 +329,7 @@ public class Repository {
                     System.out.println("Category does not exist, please try again");
                     continue;
                 }
-                // Starting SP
+
                 try (ResultSet rs = callgetShoesByCategory.getResultSet()) {
                     while (rs.next()) {
                         int name = rs.getInt("ARTICLENUMBER");
@@ -374,10 +375,12 @@ public class Repository {
 
                 //Hanterar ifall vi matar in kategori som ej finns
                 callgetShoeDetailsByColour.executeQuery();
+
                 if (colourControl(colourNameInput)==0) {
                     System.out.println("Shoe does not exist, please try again");
                     continue;
                 }
+
                 // Starting SP
                 try (ResultSet rs = callgetShoeDetailsByColour.getResultSet()) {
                     while (rs.next()) {
@@ -440,7 +443,7 @@ public class Repository {
                     System.out.print("Art nmbr: " + articleNumber + " | ");
                     System.out.print("Brand: " + brand + " | ");
                     System.out.print("Colours: " + colours + " | ");
-                    System.out.print("Categorie: " + categories);
+                    System.out.print("Categories: " + categories);
                     System.out.print("Price: " + price + " | ");
                     System.out.print("Amount: " + amount + " | ");
                     System.out.print("Size: " + size + " | ");

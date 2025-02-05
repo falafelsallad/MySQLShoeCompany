@@ -32,7 +32,7 @@ public class MyJDBC {
                     repository.getShoeDetailsByCategory();
                     repository.AddToCart(orderID);
 
-                }else if (answer.equalsIgnoreCase("PAY")){
+                } else if (answer.equalsIgnoreCase("PAY")){
                     repository.confirmPurchase(orderID);
                     System.out.println("Your order has been marked as paid, thank you!");
                 }
