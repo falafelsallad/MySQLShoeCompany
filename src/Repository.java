@@ -130,6 +130,7 @@ public class Repository {
     }
 
 
+
     // ADD TO CART
     public void AddToCart(int orderID) {
         Scanner scan = new Scanner(System.in);
@@ -175,7 +176,7 @@ public class Repository {
 
                 try (ResultSet rs = callAddToCart.executeQuery()) {
                     if (rs.next()) {
-                        System.out.println(rs.getString(1));  // gets message if everythng when well
+                        System.out.println(rs.getString(1));  // FELMEDDELANDE FRÅN SQL
                     }
                 }
 
@@ -246,7 +247,6 @@ public class Repository {
         return ifcolourExists;
     }
 
-
     // KATEGORIER IN I LIST
     public void getCategories() {    //FUNKAR UTMÄRKT UTAN EN LISTA!
         try (Connection con = getConnection();
@@ -276,29 +276,6 @@ public class Repository {
         }
     }
 
-
-    //används ej i dagsläget men kan anvädas om man vill visa ALLA skor sedan får man välja fritt
-    public void getShoeInfo(int shoeIDInput) {
-        try (Connection con = getConnection();
-            CallableStatement callgetShoeInfo = con.prepareCall("CALL GetShoeDetails(?)")) {
-            callgetShoeInfo.setInt(1, shoeIDInput);
-            ResultSet rs = callgetShoeInfo.executeQuery();
-
-            while (rs.next()) {
-                System.out.println("Name: " + rs.getInt("name"));
-                System.out.println("Price: " + rs.getInt("Price"));
-                System.out.println("Size: " + rs.getInt("Size"));
-                System.out.println("Storage: " + rs.getInt("Balance"));
-                System.out.println("Brand: " + rs.getString("Brand"));
-                System.out.println("Colour: " + rs.getString("Colour"));
-                System.out.println("Category: " + rs.getString("Category"));
-                System.out.println("--------------------------" + "\n");
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
 
     public void getShoeDetailsByCategory() {
         while (true) {
