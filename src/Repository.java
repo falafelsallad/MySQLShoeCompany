@@ -2,7 +2,6 @@ import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
-import java.util.*;
 import java.sql.*;
 import java.util.InputMismatchException;
 import java.util.Locale;
@@ -12,12 +11,20 @@ import java.util.Scanner;
 public class Repository {
 
     private final Properties p = new Properties();
-    List<Integer> validShoeIDs = new ArrayList<>();
-
+    private Connection connection;
+    private CustomerHandler customerHandler;
+    private ShoeHandler shoeHandler;
 
     public Repository() {
         try {
             p.load(new FileInputStream("C:\\Users\\fatim\\Documents\\GitHub\\MySQLShoeCompany\\src\\settings.properties"));
+            this.connection = DriverManager.getConnection(
+                    p.getProperty("url"),
+                    p.getProperty("user"),
+                    p.getProperty("password")
+            );
+            this.customerHandler = new CustomerHandler(connection);
+            this.shoeHandler = new ShoeHandler(connection);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -27,42 +34,25 @@ public class Repository {
         int customerIDFromLogIn;
         Scanner scan = new Scanner(System.in);
         while (true) {
-            try (Connection con = getConnection();
-                 CallableStatement callLogin = con.prepareCall("CALL CustomerLogin (?,?,?)")) {
+            try
+            {
                 System.out.println("Enter username:");
                 String username = scan.next().toLowerCase(Locale.ROOT).trim();
 
                 System.out.println("Enter password:");
                 String password = scan.next().toLowerCase(Locale.ROOT).trim();
 
-                int ifUsernameExists = usernameControl(username);
+                int ifUsernameExists = customerHandler.checkUsername(username);
                 if (ifUsernameExists == 0) {
                     System.out.println("Username does not exist, please try again");
                     continue;
                 }
 
-                callLogin.setString(1, username);
-                callLogin.setString(2, password);
-                callLogin.registerOutParameter(3, Types.INTEGER);
-
-                callLogin.executeQuery();
-
-
-                customerIDFromLogIn = callLogin.getInt(3);
+                customerIDFromLogIn = customerHandler.login(username, password);
 
                 if (customerIDFromLogIn > 0) {
                     System.out.println("Login successful, customer identification " + customerIDFromLogIn);
-
-                    String query = "SELECT customer.firstname, customer.lastname FROM customer WHERE ID = ?";
-                    try (PreparedStatement ps = con.prepareStatement(query)) {
-                        ps.setInt(1, customerIDFromLogIn);
-                        try (ResultSet rs = ps.executeQuery()) {
-                            while (rs.next()) {
-                                System.out.print("Welcome " + rs.getString("firstname") + " ");
-                                System.out.println(rs.getString("lastname") + "!");
-                            }
-                        }
-                    }
+                    customerHandler.WelcomeMessage(customerIDFromLogIn);
                 }
                 if (customerIDFromLogIn > 0) {
                     break;
@@ -77,38 +67,13 @@ public class Repository {
         return customerIDFromLogIn;
     }
 
-    public int usernameControl(String usernameInput) throws SQLException {
-        int ifUsernameExists = 0;
-        try (Connection con = getConnection();
-             CallableStatement callUsernameControl = con.prepareCall("CALL UsernameControl(?,?)")) {
-            callUsernameControl.setString(1, usernameInput);
-            callUsernameControl.registerOutParameter(2, Types.INTEGER);
-            callUsernameControl.executeQuery();
-            ifUsernameExists = callUsernameControl.getInt(2);
-
-        } catch (SQLException e) {
-            System.out.println("You are not a customer" + e.getMessage());
-            e.printStackTrace();
-        }
-
-
-        return ifUsernameExists;
-    }
-
     public int getPaymentStatus(int customersIDfromLogin) {
         int orderID = 0;
-        try (Connection con = getConnection();
-             CallableStatement callPaymentStatus = con.prepareCall("CALL CheckPaymentStatus(?,?)")) {
-
-            callPaymentStatus.setInt(1, customersIDfromLogin);
-            callPaymentStatus.registerOutParameter(2, Types.INTEGER);
-
-            callPaymentStatus.executeQuery();
-            orderID = callPaymentStatus.getInt(2);
-
+        try {
+            orderID = customerHandler.getPaymentStatus(customersIDfromLogin);
             if (orderID == 0) {
                 System.out.println("No active order, time to make a new one!");
-                orderID = createOrder(customersIDfromLogin);
+                orderID = customerHandler.createOrder(customersIDfromLogin);
             } else {
                 System.out.println("Active Order ID: " + orderID);
                 System.out.println("Current in your cart: ");
@@ -120,27 +85,9 @@ public class Repository {
         return orderID;
     }
 
-    public int createOrder(int customerID) {
-        int orderID = 0;
-        try (Connection con = getConnection();
-             CallableStatement callCreateOrder = con.prepareCall("CALL CreateOrder(?,?)")) {
-            callCreateOrder.setInt(1, customerID);
-            callCreateOrder.registerOutParameter(2, Types.INTEGER);
-            callCreateOrder.executeQuery();
-
-            orderID = callCreateOrder.getInt(2);
-            System.out.println("NEW ORDER CREATED, Order ID: " + orderID);
-
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        return orderID;
-    }
-
 
     public void AddToCart(int orderID) {
         Scanner scan = new Scanner(System.in);
-
         int shoeIDInput;
         int shoeAmount;
         while (true) {
@@ -251,7 +198,6 @@ public class Repository {
         }
         return ifcolourExists;
     }
-
 
 
     public void getCategories() {
@@ -432,5 +378,7 @@ public class Repository {
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(p.getProperty("url"), p.getProperty("user"), p.getProperty("password"));
     }
+
+
 
 }
