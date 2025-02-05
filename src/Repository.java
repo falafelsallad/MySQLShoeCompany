@@ -1,4 +1,8 @@
 import java.io.FileInputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
+import java.util.*;
 import java.sql.*;
 import java.util.InputMismatchException;
 import java.util.Locale;
@@ -8,6 +12,8 @@ import java.util.Scanner;
 public class Repository {
 
     private final Properties p = new Properties();
+    List<Integer> validShoeIDs = new ArrayList<>();
+
 
     public Repository() {
         try {
@@ -299,7 +305,7 @@ public class Repository {
 
                 try (ResultSet rs = callgetShoesByCategory.getResultSet()) {
                     while (rs.next()) {
-                        int name = rs.getInt("ARTICLENUMBER");
+                        int article = rs.getInt("ARTICLENUMBER");
                         int price = rs.getInt("price");
                         int size = rs.getInt("size");
                         int balance = rs.getInt("Storage_balance");
@@ -307,7 +313,7 @@ public class Repository {
                         String colours = rs.getString("colour");
                         String categories = rs.getString("categories");
 
-                        shoedetails(name, price, size, balance, brand, colours, categories);
+                        shoedetails(article, price, size, balance, brand, colours, categories);
                     }
                 }
 
@@ -342,7 +348,7 @@ public class Repository {
 
                 try (ResultSet rs = callgetShoeDetailsByColour.getResultSet()) {
                     while (rs.next()) {
-                        int name = rs.getInt("ARTICLENUMBER");
+                        int article = rs.getInt("ARTICLENUMBER");
                         int price = rs.getInt("price");
                         int size = rs.getInt("size");
                         int balance = rs.getInt("Storage_balance");
@@ -350,7 +356,7 @@ public class Repository {
                         String colours = rs.getString("colours");
                         String categories = rs.getString("categories");
 
-                        shoedetails(name, price, size, balance, brand, colours, categories);
+                        shoedetails(article, price, size, balance, brand, colours, categories);
                     }
                 }
 
