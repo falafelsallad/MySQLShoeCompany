@@ -19,7 +19,7 @@ public class Repository {
         }
     }
 
-    //INLOGGNING FÖR ANVÄNDARE
+
     public int startLogIn() {
         int customerIDFromLogIn;
         Scanner scan = new Scanner(System.in);
