@@ -12,8 +12,6 @@ import java.util.Scanner;
 public class Repository {
 
     private final Properties p = new Properties();
-    List<Integer> validShoeIDs = new ArrayList<>();
-
 
     public Repository() {
         try {
@@ -427,7 +425,6 @@ public class Repository {
             System.out.println("Ett fel uppstod: " + e.getMessage());
         }
     }
-
 
     private Connection getConnection() throws SQLException {
         return DriverManager.getConnection(p.getProperty("url"), p.getProperty("user"), p.getProperty("password"));
