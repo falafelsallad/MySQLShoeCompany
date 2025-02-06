@@ -1,3 +1,5 @@
+import com.mysql.cj.protocol.Resultset;
+
 import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -49,10 +51,15 @@ public class Repository {
 
                 if (customerIDFromLogIn > 0) {
                     System.out.println("Login successful, customer identification " + customerIDFromLogIn);
-                    ResultSet resultSet = callLogin.executeQuery("SELECT customer.firstname, customer.lastname FROM customer WHERE ID = " + customerIDFromLogIn);
-                    while (resultSet.next()) {
-                        System.out.print("Welcome " + resultSet.getString("firstname") + " ");
-                        System.out.println(resultSet.getString("lastname") + "!");
+                    String query = "SELECT customer.firstname, customer.lastname FROM customer WHERE ID = ?";
+                    try (PreparedStatement ps = con.prepareStatement(query)) {
+                        ps.setInt(1, customerIDFromLogIn);
+                        try(ResultSet rs = ps.executeQuery()){
+                            while (rs.next()) {
+                                System.out.print("Welcome " + rs.getString("firstname") + " ");
+                                System.out.println(rs.getString("lastname") + "!");
+                            }
+                        }
                     }
                 }
                 if (customerIDFromLogIn > 0) {
