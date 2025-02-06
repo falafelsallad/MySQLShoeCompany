@@ -5,10 +5,8 @@ import java.sql.Statement;
 import java.util.*;
 import java.sql.*;
 
-import static java.sql.DriverManager.getConnection;
 
 public class Repository {
-    List<Integer> validShoeIDs = new ArrayList<>();
     private Properties p = new Properties();
 
     public Repository() {
@@ -247,8 +245,7 @@ public class Repository {
         return ifcolourExists;
     }
 
-    // KATEGORIER IN I LIST
-    public void getCategories() {    //FUNKAR UTMÄRKT UTAN EN LISTA!
+    public void getCategories() {
         try (Connection con = getConnection();
              Statement statement = con.createStatement();
              ResultSet rs = statement.executeQuery("SELECT NAME as Category FROM category")) {
@@ -261,8 +258,7 @@ public class Repository {
         }
     }
 
-    //FÄRGER IN I LIST
-    public void getColours() {                                                         //FUNKAR UTMÄRKT UTAN EN LISTA HÄR OCKSÅ!
+    public void getColours() {
         try (Connection con = getConnection();
              Statement statement = con.createStatement();
              ResultSet rs = statement.executeQuery("SELECT NAME as colour FROM colour")) {
@@ -279,7 +275,6 @@ public class Repository {
 
     public void getShoeDetailsByCategory() {
         while (true) {
-            // Prompt the user for a category
             Scanner scanner = new Scanner(System.in);
             System.out.print("Enter category number: ");
             String categoryNameInput = scanner.next().trim().toLowerCase();
@@ -289,10 +284,8 @@ public class Repository {
 
                  CallableStatement callgetShoesByCategory = con.prepareCall("CALL GetShoesByCategory(?)")) {
 
-                // Set input parameter
                 callgetShoesByCategory.setString(1, categoryNameInput);
 
-                //Hanterar ifall vi matar in kategori som ej finns
                 callgetShoesByCategory.executeQuery();
                 if (categoryControl(categoryNameInput) == 0) {
                     System.out.println("Category does not exist, please try again");
@@ -339,10 +332,9 @@ public class Repository {
 
                  CallableStatement callgetShoeDetailsByColour = con.prepareCall("CALL GetShoesByColour(?)")) {
 
-                // Set input parameter
+
                 callgetShoeDetailsByColour.setString(1, colourNameInput);
 
-                //Hanterar ifall vi matar in kategori som ej finns
                 callgetShoeDetailsByColour.executeQuery();
 
                 if (colourControl(colourNameInput)==0) {
@@ -350,7 +342,6 @@ public class Repository {
                     continue;
                 }
 
-                // Starting SP
                 try (ResultSet rs = callgetShoeDetailsByColour.getResultSet()) {
                     while (rs.next()) {
                         int article = rs.getInt("ARTICLENUMBER");
